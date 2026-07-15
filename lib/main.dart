@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/auth_provider.dart';
+import 'providers/destination_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/main/main_screen.dart';
 
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
             return auth;
           },
         ),
+        ChangeNotifierProvider(create: (_) => DestinationProvider()),
       ],
       child: MaterialApp(
         title: 'WanderLab',
