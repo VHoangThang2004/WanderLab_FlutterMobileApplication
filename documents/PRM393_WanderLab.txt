@@ -1,0 +1,22 @@
+PRM393 - TEAM 6 - PROJECT NAME: WANDERLAB
+1.Objective
+Develop a Flutter mobile application that allows travelers to browse destinations, view travel services, make reservations, manage bookings, and record travel experiences.
+
+2.Database:
+Students may choose:
+- SQLite.
+- Firebase Firestore.
+- REST API Backend.
+
+3.Main Functions:
+(Each functions = 10% scores)
+A.Design Booking Database/API Structure
+B.Login/Register Screen
+C.Destination Explorer Screen
+D.Destination Detail Screen
+E.Reservation Screen
+F.Booking Confirmation Screen
+G.Notifications Screen
+H.Destination Map Screen
+I.Travel Community/Traveler Chat Screen
+J.Apply Provider/Bloc State Management
