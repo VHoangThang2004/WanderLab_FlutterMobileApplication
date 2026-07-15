@@ -1,0 +1,149 @@
+PRM393 – TEAM 6
+PROJECT NAME: WANDERLAB
+1. Team Introduction
+Nhóm dự án gồm 4 thành viên, tất cả đảm nhiệm vai trò Software Engineer, cùng phối hợp phát triển ứng dụng WanderLab từ khâu thiết kế hệ thống đến lập trình và kiểm thử.
+STT
+Họ và tên
+Vai trò
+Nhiệm vụ / Đóng góp chính
+1
+Võ Hoàng Thắng
+Software Engineer
+Xác thực & xác nhận: xây dựng màn hình Đăng nhập/Đăng ký (chức năng B); xây dựng màn hình Xác nhận đặt chỗ (chức năng F).
+2
+Nguyễn Đại Lợi
+Software Engineer (Team Leader)
+Điều phối chung nhóm, tổng hợp báo cáo, kiểm soát tiến độ; nền tảng dữ liệu & nghiệp vụ đặt chỗ: thiết kế Database/API (chức năng A); xây dựng màn hình Đặt chỗ - Reservation (chức năng E).
+3
+Bùi Huỳnh Văn Phúc
+Software Engineer
+Trải nghiệm khám phá điểm đến: xây dựng màn hình Khám phá (chức năng C), Chi tiết điểm đến (chức năng D) và Bản đồ điểm đến (chức năng H).
+4
+Lê Minh Trí
+Software Engineer
+Trải nghiệm tương tác & kiến trúc ứng dụng: xây dựng màn hình Thông báo (chức năng G), Cộng đồng/Trò chuyện du khách (chức năng I); áp dụng quản lý trạng thái Provider/Bloc (chức năng J).
+2. Case Study: Booking & Reservation Systems
+WanderLab là ứng dụng di động Flutter thuộc lĩnh vực Booking & Reservation Systems, hướng đến người dùng là các du khách (travelers) có nhu cầu:
+Khám phá các điểm đến và dịch vụ du lịch (tour, khách sạn, hoạt động trải nghiệm...).
+Xem thông tin chi tiết, đánh giá và hình ảnh của từng điểm đến/dịch vụ.
+Thực hiện đặt chỗ (reservation), theo dõi và quản lý các đơn đặt chỗ đã tạo.
+Nhận thông báo liên quan đến lịch trình và trạng thái đặt chỗ.
+Ghi lại và chia sẻ trải nghiệm du lịch cá nhân với cộng đồng du khách khác.
+Bài toán đặt ra là xây dựng một hệ thống đặt chỗ hoàn chỉnh, có khả năng quản lý dữ liệu điểm đến/dịch vụ, xử lý luồng đặt chỗ từ lúc chọn dịch vụ đến khi xác nhận, đồng thời tạo trải nghiệm mang tính cộng đồng và cá nhân hóa cho người dùng.
+3. Business Analysis / System Design
+3.1. Chức năng chính của hệ thống
+Mã
+Chức năng chính
+Mô tả ngắn gọn
+Điểm
+Phụ trách
+A
+Thiết kế Booking Database/API Structure
+Thiết kế lược đồ dữ liệu/API cho điểm đến, dịch vụ, đặt chỗ, người dùng và nhật ký trải nghiệm.
+10%
+Lợi
+B
+Login/Register Screen
+Đăng ký, đăng nhập, xác thực người dùng (email/password, có thể tích hợp Google Sign-In).
+10%
+Thắng
+C
+Destination Explorer Screen
+Duyệt danh sách điểm đến/dịch vụ du lịch, tìm kiếm và lọc theo tiêu chí.
+10%
+Phúc
+D
+Destination Detail Screen
+Xem chi tiết điểm đến: hình ảnh, mô tả, dịch vụ đi kèm, đánh giá.
+10%
+Phúc
+E
+Reservation Screen
+Chọn dịch vụ, ngày giờ, số lượng khách và tạo yêu cầu đặt chỗ.
+10%
+Lợi
+F
+Booking Confirmation Screen
+Xác nhận thông tin đặt chỗ, hiển thị trạng thái và mã đặt chỗ.
+10%
+Thắng
+G
+Notifications Screen
+Thông báo nhắc lịch trình, xác nhận đặt chỗ, khuyến mãi.
+10%
+Trí
+H
+Destination Map Screen
+Hiển thị vị trí điểm đến trên bản đồ, chỉ đường cơ bản.
+10%
+Phúc
+I
+Travel Community/Traveler Chat Screen
+Không gian chia sẻ trải nghiệm du lịch và trò chuyện giữa các du khách.
+10%
+Trí
+J
+Apply Provider/Bloc State Management
+Áp dụng quản lý trạng thái (Provider hoặc Bloc) xuyên suốt ứng dụng.
+10%
+Trí
+Công việc được chia theo 4 nhóm luồng nghiệp vụ để mỗi thành viên phụ trách trọn vẹn một mảng, giảm phụ thuộc chéo:
+Lợi (Leader) – Nền tảng dữ liệu & đặt chỗ (A, E): thiết kế Database/API và luồng tạo đặt chỗ, song song với vai trò điều phối, tổng hợp báo cáo và kiểm soát tiến độ chung.
+Thắng – Xác thực & xác nhận (B, F): phụ trách 2 chức năng ở đầu và cuối luồng đặt chỗ.
+Phúc – Khám phá điểm đến (C, D, H): 3 màn hình cùng phục vụ việc tìm và xem thông tin điểm đến, kể cả trên bản đồ, nên gộp chung để nhất quán UI/UX.
+Trí – Tương tác & kiến trúc (G, I, J): các tính năng có tính "phản ứng theo thời gian thực" (thông báo, chat cộng đồng) đi cùng việc áp dụng Provider/Bloc, vì đây là nơi quản lý trạng thái được vận dụng rõ nhất.
+Cách chia này giữ số lượng công việc tương đối đều (2–3 chức năng/người) và để Lợi có thêm thời gian cho vai trò trưởng nhóm.
+3.2. Yêu cầu chức năng (Functional Requirements)
+Người dùng có thể đăng ký, đăng nhập và quản lý tài khoản cá nhân.
+Người dùng có thể tìm kiếm, lọc và xem danh sách điểm đến/dịch vụ du lịch.
+Người dùng có thể xem chi tiết điểm đến kèm hình ảnh, mô tả, đánh giá.
+Người dùng có thể tạo, xem, chỉnh sửa và huỷ đặt chỗ.
+Hệ thống xác nhận đặt chỗ và cung cấp mã tham chiếu (booking code).
+Hệ thống gửi thông báo về trạng thái đặt chỗ và các sự kiện liên quan.
+Người dùng có thể xem vị trí điểm đến trên bản đồ.
+Người dùng có thể tương tác, chia sẻ trải nghiệm trong cộng đồng du khách.
+3.3. Yêu cầu phi chức năng (Non-functional Requirements)
+Hiệu năng: thời gian tải danh sách điểm đến và xử lý đặt chỗ nhanh, mượt mà.
+Bảo mật: xác thực người dùng an toàn, bảo vệ dữ liệu cá nhân và lịch sử đặt chỗ.
+Khả năng mở rộng: cấu trúc dữ liệu và API cho phép bổ sung dịch vụ/điểm đến mới dễ dàng.
+Khả năng sử dụng: giao diện trực quan, thân thiện với người dùng phổ thông.
+Khả năng bảo trì: mã nguồn tổ chức rõ ràng theo kiến trúc quản lý trạng thái đã chọn.
+3.4. Thiết kế cơ sở dữ liệu / API
+Nhóm cân nhắc 3 phương án lưu trữ dữ liệu theo đề bài:
+SQLite: phù hợp lưu trữ cục bộ, tốc độ truy vấn nhanh nhưng khó đồng bộ đa thiết bị.
+Firebase Firestore: hỗ trợ realtime, dễ tích hợp xác thực và thông báo, phù hợp triển khai nhanh.
+REST API Backend: linh hoạt, dễ mở rộng logic nghiệp vụ phía server, phù hợp nếu nhóm muốn tự chủ backend.
+Các thực thể dữ liệu chính dự kiến gồm: User, Destination, Service, Reservation/Booking, Notification, CommunityPost/ChatMessage. Cấu trúc quan hệ và lựa chọn công nghệ cụ thể sẽ được nhóm thống nhất và trình bày chi tiết trong giai đoạn thiết kế hệ thống.
+3.5. Kiến trúc ứng dụng
+Ứng dụng áp dụng mô hình quản lý trạng thái Provider hoặc Bloc (chức năng J) nhằm tách biệt rõ ràng giữa UI, logic nghiệp vụ và tầng dữ liệu, giúp mã nguồn dễ bảo trì và mở rộng. Luồng UI tổng quát: Splash/Login → Destination Explorer → Destination Detail → Reservation → Booking Confirmation, kết hợp với các màn hình phụ trợ Notifications, Map và Community/Chat.
+4. Development Requirements
+UI Implementation: xây dựng đầy đủ các màn hình theo 10 chức năng chính (A–J).
+State Management: áp dụng Provider hoặc Bloc xuyên suốt ứng dụng.
+Local hoặc Remote Database: SQLite, Firebase Firestore hoặc REST API Backend.
+Deployment: build Release APK/AppBundle và minh chứng chạy ở chế độ Release.
+Testing: tối thiểu 1 Unit Test và 1 Widget Test cho logic nghiệp vụ và giao diện.
+5. Demo of Mobile Application
+Nhóm sẽ trình diễn đầy đủ các chức năng A–J, luồng quản lý trạng thái, xử lý dữ liệu, kết quả kiểm thử (Unit Test/Widget Test) và các kết quả tối ưu hiệu năng trong buổi demo (15 phút).
+6. Conclusion and Discussion
+(Nhóm sẽ hoàn thiện phần này sau khi kết thúc phát triển, nêu rõ ưu điểm, hạn chế của ứng dụng, những kiến thức/kỹ năng học được, và định hướng cải tiến nếu có thêm thời gian.)
+7. Contribution
+Hạng mục
+Nhóm
+Thắng
+Lợi
+Phúc
+Trí
+Phân tích Case Study
+100%
+25%
+25%
+25%
+25%
+Business analysis
+100%
+System design
+100%
+Implementation
+100%
+Documentation
+100%
