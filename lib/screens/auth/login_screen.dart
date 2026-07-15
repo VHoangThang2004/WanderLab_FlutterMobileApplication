@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/validators.dart';
+import '../main/main_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -25,12 +26,11 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (success) {
-        // Navigate to Destination Explorer (Chức năng C) - Placeholder
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Đăng nhập thành công!')),
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainScreen()),
           );
-          // Navigator.pushReplacementNamed(context, '/explorer');
         }
       }
     }
