@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/destination_model.dart';
+import 'booking_screen.dart';
 
 class DestinationDetailScreen extends StatelessWidget {
   final Destination destination;
@@ -101,8 +102,11 @@ class DestinationDetailScreen extends StatelessWidget {
           width: double.infinity,
           child: ElevatedButton(
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Chuyển sang màn hình Đặt chỗ (Task E)...')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BookingScreen(destination: destination),
+                ),
               );
             },
             style: ElevatedButton.styleFrom(
