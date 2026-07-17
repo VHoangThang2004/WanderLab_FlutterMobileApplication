@@ -144,4 +144,37 @@ class BookingProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<bool> updateBookingStatus(int bookingId, String newStatus, int userId) async {
+    try {
+      final rowsAffected = await DatabaseHelper.instance.updateBookingStatus(bookingId, newStatus);
+      if (rowsAffected > 0) {
+        // Cập nhật lại danh sách local ngay lập tức
+        final index = _userBookings.indexWhere((b) => b.id == bookingId);
+        if (index != -1) {
+          final old = _userBookings[index];
+          _userBookings[index] = Booking(
+            id: old.id,
+            userId: old.userId,
+            serviceId: old.serviceId,
+            bookingDate: old.bookingDate,
+            bookingTime: old.bookingTime,
+            guestCount: old.guestCount,
+            status: newStatus,
+            totalPrice: old.totalPrice,
+            createdAt: old.createdAt,
+            serviceName: old.serviceName,
+            destinationName: old.destinationName,
+          );
+          notifyListeners();
+        }
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint("Error updating booking status: $e");
+      return false;
+    }
+  }
 }
+

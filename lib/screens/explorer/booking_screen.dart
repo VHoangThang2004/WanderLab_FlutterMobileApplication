@@ -79,6 +79,32 @@ class _BookingScreenState extends State<BookingScreen> {
       return;
     }
 
+    final shouldProceed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xác nhận đặt chỗ'),
+        content: Text(
+          'Bạn có chắc chắn muốn đặt ${provider.selectedService?.name ?? "dịch vụ"} với tổng chi phí ${provider.totalPrice.toStringAsFixed(0)} VNĐ không?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Không'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Có'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldProceed != true) return;
+
     final booking = await provider.createBooking(userId: userId);
     if (booking != null) {
       if (mounted) {

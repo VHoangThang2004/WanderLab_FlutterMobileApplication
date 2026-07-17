@@ -5,6 +5,7 @@ import '../auth/login_screen.dart';
 import '../explorer/explorer_screen.dart';
 import '../map/map_screen.dart';
 import '../community/community_screen.dart';
+import '../manage_bookings/manage_bookings_screen.dart';
 import '../notifications/notifications_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -21,6 +22,7 @@ class _MainScreenState extends State<MainScreen> {
     ExplorerScreen(),
     MapScreen(),
     CommunityScreen(),
+    ManageBookingsScreen(),
     NotificationsScreen(),
   ];
 
@@ -28,6 +30,7 @@ class _MainScreenState extends State<MainScreen> {
     'Khám phá',
     'Bản đồ',
     'Cộng đồng',
+    'Quản lý',
     'Thông báo',
   ];
 
@@ -81,6 +84,10 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.people),
             label: 'Cộng đồng',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.receipt_long),
+            label: 'Quản lý',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),

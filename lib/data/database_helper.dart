@@ -25,7 +25,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 6,
+      version: 7,
       onCreate: _createDB,
       onUpgrade: (db, oldVersion, newVersion) async {
         await db.execute('DROP TABLE IF EXISTS destinations');
@@ -33,6 +33,7 @@ class DatabaseHelper {
         await db.execute('DROP TABLE IF EXISTS services');
         await db.execute('DROP TABLE IF EXISTS bookings');
         await db.execute('DROP TABLE IF EXISTS experience_logs');
+        await db.execute('DROP TABLE IF EXISTS notifications');
         await _createDB(db, newVersion);
       },
     );
@@ -110,6 +111,18 @@ CREATE TABLE experience_logs (
   createdAt $textType,
   FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE,
   FOREIGN KEY (destinationId) REFERENCES destinations (id) ON DELETE CASCADE
+)
+''');
+
+    await db.execute('''
+CREATE TABLE notifications (
+  id $idType,
+  userId $intType,
+  title $textType,
+  message $textType,
+  isRead $intType,
+  createdAt $textType,
+  FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE
 )
 ''');
 
@@ -386,8 +399,6 @@ CREATE TABLE experience_logs (
 
   Future<List<Booking>> getBookingsForUser(int userId) async {
     final db = await instance.database;
-    
-    // Join query to get service name and destination name
     final List<Map<String, dynamic>> maps = await db.rawQuery('''
       SELECT b.*, s.name as serviceName, d.name as destinationName
       FROM bookings b
@@ -397,7 +408,45 @@ CREATE TABLE experience_logs (
       ORDER BY b.createdAt DESC
     ''', [userId]);
 
-    return maps.map((map) => Booking.fromMap(map)).toList();
+    return List.generate(maps.length, (i) {
+      return Booking.fromMap(maps[i]);
+    });
+  }
+
+  Future<int> updateBookingStatus(int bookingId, String status) async {
+    final db = await instance.database;
+    return await db.update(
+      'bookings',
+      {'status': status},
+      where: 'id = ?',
+      whereArgs: [bookingId],
+    );
+  }
+
+  // --- Notifications ---
+  Future<int> insertNotification(Map<String, dynamic> notificationMap) async {
+    final db = await instance.database;
+    return await db.insert('notifications', notificationMap);
+  }
+
+  Future<List<Map<String, dynamic>>> getNotificationsForUser(int userId) async {
+    final db = await instance.database;
+    return await db.query(
+      'notifications',
+      where: 'userId = ?',
+      whereArgs: [userId],
+      orderBy: 'createdAt DESC',
+    );
+  }
+  
+  Future<int> markNotificationAsRead(int notificationId) async {
+    final db = await instance.database;
+    return await db.update(
+      'notifications',
+      {'isRead': 1},
+      where: 'id = ?',
+      whereArgs: [notificationId],
+    );
   }
 
   // --- EXPERIENCE LOGS ---
