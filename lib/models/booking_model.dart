@@ -8,6 +8,7 @@ class Booking {
   final String status;
   final double totalPrice;
   final String createdAt;
+  final String? paymentMethod; // Thêm phương thức thanh toán
 
   // Helper fields for UI display populated via database join queries
   final String? serviceName;
@@ -23,6 +24,7 @@ class Booking {
     required this.status,
     required this.totalPrice,
     required this.createdAt,
+    this.paymentMethod,
     this.serviceName,
     this.destinationName,
   });
@@ -38,6 +40,7 @@ class Booking {
       status: map['status'] ?? 'Chờ xác nhận',
       totalPrice: (map['totalPrice'] as num).toDouble(),
       createdAt: map['createdAt'],
+      paymentMethod: map['paymentMethod'],
       serviceName: map['serviceName'],
       destinationName: map['destinationName'],
     );
@@ -54,6 +57,7 @@ class Booking {
       'status': status,
       'totalPrice': totalPrice,
       'createdAt': createdAt,
+      'paymentMethod': paymentMethod,
     };
   }
 }

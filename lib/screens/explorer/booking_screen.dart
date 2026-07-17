@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/destination_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/booking_provider.dart';
-import 'booking_confirmation_screen.dart';
+import 'payment_screen.dart';
 
 class BookingScreen extends StatefulWidget {
   final Destination destination;
@@ -105,25 +105,15 @@ class _BookingScreenState extends State<BookingScreen> {
 
     if (shouldProceed != true) return;
 
-    final booking = await provider.createBooking(userId: userId);
-    if (booking != null) {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => BookingConfirmationScreen(
-              booking: booking,
-              destination: widget.destination,
-            ),
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaymentScreen(
+            destination: widget.destination,
           ),
-        );
-      }
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Đã xảy ra lỗi khi tạo yêu cầu đặt chỗ.')),
-        );
-      }
+        ),
+      );
     }
   }
 
@@ -135,6 +125,8 @@ class _BookingScreenState extends State<BookingScreen> {
       appBar: AppBar(
         title: const Text('Đặt chỗ trải nghiệm'),
         centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
       ),
       body: provider.isLoading && provider.services.isEmpty
           ? const Center(child: CircularProgressIndicator())
@@ -144,19 +136,24 @@ class _BookingScreenState extends State<BookingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Destination Info Card
-                  Card(
-                    elevation: 0,
-                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(12.0),
+                      padding: const EdgeInsets.all(16.0),
                       child: Row(
                         children: [
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(16),
                             child: Image.asset(
                               widget.destination.imageUrl,
                               width: 80,
@@ -212,21 +209,21 @@ class _BookingScreenState extends State<BookingScreen> {
                     Column(
                       children: provider.services.map((service) {
                         final isSelected = provider.selectedService?.id == service.id;
-                        return Card(
-                          elevation: isSelected ? 2 : 0,
+                        return Container(
                           margin: const EdgeInsets.only(bottom: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(
+                          decoration: BoxDecoration(
+                            color: isSelected ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.05) : Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
                               color: isSelected
                                   ? Theme.of(context).colorScheme.primary
-                                  : Colors.grey.shade300,
+                                  : Colors.grey.shade200,
                               width: isSelected ? 2 : 1,
                             ),
                           ),
                           child: InkWell(
                             onTap: () => provider.selectService(service),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(16),
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Row(
@@ -410,8 +407,9 @@ class _BookingScreenState extends State<BookingScreen> {
                           backgroundColor: Theme.of(context).colorScheme.primary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
+                          elevation: 0,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                         ),
                         child: provider.isLoading
