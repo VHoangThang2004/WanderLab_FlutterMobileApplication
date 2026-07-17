@@ -222,7 +222,7 @@ class _ManageBookingsScreenState extends State<ManageBookingsScreen> {
                                       style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
                                       child: const Text('Xác nhận'),
                                     ),
-                                  ] else if (booking.status == 'Đã xác nhận') ...[
+                                  ] else if (booking.status == 'Đã xác nhận' || booking.status == 'Đã thanh toán') ...[
                                     ElevatedButton(
                                       onPressed: () => _updateStatus(context, booking.id!, 'Hoàn thành', userId),
                                       style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),

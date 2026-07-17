@@ -9,6 +9,7 @@ import '../notifications/notifications_screen.dart';
 import '../profile/profile_screen.dart';
 import '../favorites/favorites_screen.dart';
 import '../../providers/favorite_provider.dart';
+import '../../providers/notification_provider.dart';
 import '../auth/login_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -53,6 +54,8 @@ class _MainScreenState extends State<MainScreen> {
         if (authProvider.currentUser != null) {
           Provider.of<FavoriteProvider>(context, listen: false)
               .loadFavorites(authProvider.currentUser!.id!);
+          Provider.of<NotificationProvider>(context, listen: false)
+              .loadNotifications(authProvider.currentUser!.id!);
           authProvider.removeListener(checkAndLoad);
         }
       }
@@ -152,30 +155,50 @@ class _MainScreenState extends State<MainScreen> {
             selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
             unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 12),
             elevation: 0,
-            items: const [
-              BottomNavigationBarItem(
+            items: [
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.explore_outlined),
                 activeIcon: Icon(Icons.explore),
                 label: 'Khám phá',
               ),
-              BottomNavigationBarItem(
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.map_outlined),
                 activeIcon: Icon(Icons.map),
                 label: 'Bản đồ',
               ),
-              BottomNavigationBarItem(
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.people_outline),
                 activeIcon: Icon(Icons.people),
                 label: 'Cộng đồng',
               ),
-              BottomNavigationBarItem(
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.receipt_long_outlined),
                 activeIcon: Icon(Icons.receipt_long),
                 label: 'Quản lý',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.notifications_none_outlined),
-                activeIcon: Icon(Icons.notifications),
+                icon: Consumer<NotificationProvider>(
+                  builder: (context, notif, child) {
+                    if (notif.unreadCount > 0) {
+                      return Badge(
+                        label: Text('${notif.unreadCount}'),
+                        child: const Icon(Icons.notifications_none_outlined),
+                      );
+                    }
+                    return const Icon(Icons.notifications_none_outlined);
+                  },
+                ),
+                activeIcon: Consumer<NotificationProvider>(
+                  builder: (context, notif, child) {
+                    if (notif.unreadCount > 0) {
+                      return Badge(
+                        label: Text('${notif.unreadCount}'),
+                        child: const Icon(Icons.notifications),
+                      );
+                    }
+                    return const Icon(Icons.notifications);
+                  },
+                ),
                 label: 'Thông báo',
               ),
             ],

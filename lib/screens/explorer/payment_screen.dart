@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/destination_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/booking_provider.dart';
+import '../../providers/notification_provider.dart';
 import 'booking_confirmation_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
@@ -15,32 +16,46 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  String _selectedMethod = 'Credit Card';
+  String _selectedMethod = 'Cash';
   bool _isProcessing = false;
 
   void _processPayment(BookingProvider provider, int userId) async {
-    setState(() {
-      _isProcessing = true;
-    });
+    if (_selectedMethod != 'Cash') {
+      setState(() {
+        _isProcessing = true;
+      });
+      // Giả lập thời gian xử lý thanh toán 2 giây
+      await Future.delayed(const Duration(seconds: 2));
+    }
 
-    // Giả lập thời gian xử lý thanh toán 2 giây
-    await Future.delayed(const Duration(seconds: 2));
-
-    // Map _selectedMethod to localized string
     String paymentMethodName = 'Tiền mặt';
-    if (_selectedMethod == 'Credit Card') paymentMethodName = 'Thẻ tín dụng / Ghi nợ';
-    if (_selectedMethod == 'MoMo') paymentMethodName = 'Ví MoMo';
+    String status = 'Chờ xác nhận';
 
-    // Tạo booking với trạng thái 'Đã thanh toán'
+    if (_selectedMethod == 'MoMo') {
+      paymentMethodName = 'Ví MoMo';
+      status = 'Đã thanh toán';
+    }
+
+    // Tạo booking
     final booking = await provider.createBooking(
       userId: userId,
-      status: 'Đã thanh toán',
+      status: status,
       paymentMethod: paymentMethodName,
     );
 
-    setState(() {
-      _isProcessing = false;
-    });
+    if (_selectedMethod == 'MoMo' && booking != null && mounted) {
+      Provider.of<NotificationProvider>(context, listen: false).addNotification(
+        userId: userId,
+        title: 'Thanh toán thành công',
+        message: 'Giao dịch qua Ví MoMo thành công. Vé đặt chỗ của bạn đã được xác nhận!',
+      );
+    }
+
+    if (_selectedMethod != 'Cash') {
+      setState(() {
+        _isProcessing = false;
+      });
+    }
 
     if (booking != null) {
       if (mounted) {
@@ -118,13 +133,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
-                  _buildPaymentMethod(
-                    title: 'Thẻ tín dụng / Ghi nợ',
-                    icon: Icons.credit_card,
-                    value: 'Credit Card',
-                  ),
-                  if (_selectedMethod == 'Credit Card') _buildCreditCardForm(),
-                  const SizedBox(height: 12),
+
                   _buildPaymentMethod(
                     title: 'Ví MoMo',
                     icon: Icons.account_balance_wallet,
@@ -213,69 +222,5 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _buildCreditCardForm() {
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
-        children: [
-          TextField(
-            decoration: InputDecoration(
-              labelText: 'Số thẻ',
-              hintText: '0000 0000 0000 0000',
-              prefixIcon: const Icon(Icons.credit_card),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              filled: true,
-              fillColor: Colors.white,
-            ),
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Ngày hết hạn',
-                    hintText: 'MM/YY',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  decoration: InputDecoration(
-                    labelText: 'CVC',
-                    hintText: '123',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                  obscureText: true,
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            decoration: InputDecoration(
-              labelText: 'Tên in trên thẻ',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              filled: true,
-              fillColor: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 }
