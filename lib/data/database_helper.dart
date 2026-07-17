@@ -375,9 +375,44 @@ CREATE TABLE notifications (
     }
   }
 
+  Future<UserModel?> getUserById(int id) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      'users',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return UserModel.fromMap(maps.first);
+    } else {
+      return null;
+    }
+  }
+
   Future<int> insertUser(UserModel user) async {
     final db = await instance.database;
     return await db.insert('users', user.toMap());
+  }
+
+  Future<int> updateProfile(int id, String fullName) async {
+    final db = await instance.database;
+    return await db.update(
+      'users',
+      {'fullName': fullName},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> updatePassword(int id, String newPasswordHash) async {
+    final db = await instance.database;
+    return await db.update(
+      'users',
+      {'passwordHash': newPasswordHash},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   // --- SERVICES ---

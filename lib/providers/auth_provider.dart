@@ -100,6 +100,51 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  Future<bool> updateProfile(String fullName) async {
+    if (_currentUser == null) return false;
+    _setLoading(true);
+    _setErrorMessage('');
+
+    try {
+      await _dbHelper.updateProfile(_currentUser!.id!, fullName);
+      // Update local state
+      _currentUser = await _dbHelper.getUserById(_currentUser!.id!);
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _setErrorMessage('Lỗi cập nhật thông tin: $e');
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  Future<bool> changePassword(String currentPassword, String newPassword) async {
+    if (_currentUser == null) return false;
+    _setLoading(true);
+    _setErrorMessage('');
+
+    try {
+      final hashedCurrentPassword = _hashPassword(currentPassword);
+      if (_currentUser!.passwordHash != hashedCurrentPassword) {
+        _setErrorMessage('Mật khẩu hiện tại không đúng');
+        _setLoading(false);
+        return false;
+      }
+
+      final hashedNewPassword = _hashPassword(newPassword);
+      await _dbHelper.updatePassword(_currentUser!.id!, hashedNewPassword);
+      
+      // Update local state
+      _currentUser = await _dbHelper.getUserById(_currentUser!.id!);
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _setErrorMessage('Lỗi đổi mật khẩu: $e');
+      _setLoading(false);
+      return false;
+    }
+  }
+
   Future<void> logout() async {
     _currentUser = null;
     final prefs = await SharedPreferences.getInstance();
@@ -112,18 +157,19 @@ class AuthProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
     if (isLoggedIn) {
-      // Typically we'd fetch the user by ID here, 
-      // but we need a getUserById in db helper. 
-      // For simplicity, we just set a dummy user or you can implement it.
-      // Let's implement getting user later if necessary, or just rely on state.
-      _currentUser = UserModel(
-        id: prefs.getInt('userId'),
-        fullName: 'Người dùng', // Placeholder
-        email: '',
-        passwordHash: '',
-        createdAt: '',
-      );
-      notifyListeners();
+      final userId = prefs.getInt('userId');
+      if (userId != null) {
+        final user = await _dbHelper.getUserById(userId);
+        if (user != null) {
+          _currentUser = user;
+          notifyListeners();
+        } else {
+          // If user doesn't exist in DB anymore, logout
+          await logout();
+        }
+      } else {
+        await logout();
+      }
     }
   }
 }
