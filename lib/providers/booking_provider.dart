@@ -76,9 +76,9 @@ class BookingProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> createBooking({required int userId}) async {
+  Future<Booking?> createBooking({required int userId}) async {
     if (_selectedService == null || _selectedDate == null || _selectedTime == null) {
-      return false;
+      return null;
     }
 
     _isLoading = true;
@@ -103,13 +103,28 @@ class BookingProvider with ChangeNotifier {
       if (result > 0) {
         // Reload bookings
         await loadUserBookings(userId);
+        
+        // Tạo object trả về để gửi qua màn hình Confirmation
+        final confirmedBooking = Booking(
+          id: result,
+          userId: newBooking.userId,
+          serviceId: newBooking.serviceId,
+          bookingDate: newBooking.bookingDate,
+          bookingTime: newBooking.bookingTime,
+          guestCount: newBooking.guestCount,
+          status: newBooking.status,
+          totalPrice: newBooking.totalPrice,
+          createdAt: newBooking.createdAt,
+          serviceName: _selectedService!.name,
+        );
+        
         resetSelection();
-        return true;
+        return confirmedBooking;
       }
-      return false;
+      return null;
     } catch (e) {
       debugPrint("Error creating booking: $e");
-      return false;
+      return null;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -129,4 +144,37 @@ class BookingProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<bool> updateBookingStatus(int bookingId, String newStatus, int userId) async {
+    try {
+      final rowsAffected = await DatabaseHelper.instance.updateBookingStatus(bookingId, newStatus);
+      if (rowsAffected > 0) {
+        // Cập nhật lại danh sách local ngay lập tức
+        final index = _userBookings.indexWhere((b) => b.id == bookingId);
+        if (index != -1) {
+          final old = _userBookings[index];
+          _userBookings[index] = Booking(
+            id: old.id,
+            userId: old.userId,
+            serviceId: old.serviceId,
+            bookingDate: old.bookingDate,
+            bookingTime: old.bookingTime,
+            guestCount: old.guestCount,
+            status: newStatus,
+            totalPrice: old.totalPrice,
+            createdAt: old.createdAt,
+            serviceName: old.serviceName,
+            destinationName: old.destinationName,
+          );
+          notifyListeners();
+        }
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint("Error updating booking status: $e");
+      return false;
+    }
+  }
 }
+

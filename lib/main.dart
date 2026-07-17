@@ -5,6 +5,7 @@ import 'providers/auth_provider.dart';
 import 'providers/destination_provider.dart';
 import 'providers/booking_provider.dart';
 import 'providers/experience_provider.dart';
+import 'providers/notification_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/main/main_screen.dart';
 
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => DestinationProvider()),
         ChangeNotifierProvider(create: (_) => BookingProvider()),
         ChangeNotifierProvider(create: (_) => ExperienceProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: MaterialApp(
         title: 'WanderLab',
