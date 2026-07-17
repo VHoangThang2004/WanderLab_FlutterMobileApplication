@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/destination_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/booking_provider.dart';
+import 'booking_confirmation_screen.dart';
 
 class BookingScreen extends StatefulWidget {
   final Destination destination;
@@ -78,32 +79,16 @@ class _BookingScreenState extends State<BookingScreen> {
       return;
     }
 
-    final success = await provider.createBooking(userId: userId);
-    if (success) {
+    final booking = await provider.createBooking(userId: userId);
+    if (booking != null) {
       if (mounted) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (ctx) => AlertDialog(
-            title: const Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.green, size: 28),
-                SizedBox(width: 8),
-                Text('Đặt chỗ thành công!'),
-              ],
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BookingConfirmationScreen(
+              booking: booking,
+              destination: widget.destination,
             ),
-            content: const Text(
-              'Yêu cầu đặt chỗ của bạn đã được gửi đi và đang ở trạng thái "Chờ xác nhận". Bạn có thể kiểm tra lịch sử đặt chỗ trong tab Thông báo.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(ctx); // Close dialog
-                  Navigator.pop(context); // Return to detail screen
-                },
-                child: const Text('Đóng'),
-              ),
-            ],
           ),
         );
       }
