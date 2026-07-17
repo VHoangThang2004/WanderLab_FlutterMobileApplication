@@ -56,23 +56,23 @@ class _ManageBookingsScreenState extends State<ManageBookingsScreen> {
     final provider = Provider.of<BookingProvider>(context, listen: false);
     final success = await provider.updateBookingStatus(bookingId, newStatus, userId);
     
-    if (mounted) {
-      if (success) {
-        // Gửi thông báo
-        Provider.of<NotificationProvider>(context, listen: false).addNotification(
-          userId: userId,
-          title: 'Cập nhật vé #$bookingId',
-          message: 'Trạng thái vé của bạn đã chuyển thành: $newStatus',
-        );
+    if (!context.mounted) return;
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Đã cập nhật trạng thái thành: $newStatus')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Có lỗi xảy ra khi cập nhật.')),
-        );
-      }
+    if (success) {
+      // Gửi thông báo
+      Provider.of<NotificationProvider>(context, listen: false).addNotification(
+        userId: userId,
+        title: 'Cập nhật vé #$bookingId',
+        message: 'Trạng thái vé của bạn đã chuyển thành: $newStatus',
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Đã cập nhật trạng thái thành: $newStatus')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Có lỗi xảy ra khi cập nhật.')),
+      );
     }
   }
 

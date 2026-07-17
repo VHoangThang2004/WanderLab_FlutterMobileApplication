@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
 import '../../providers/destination_provider.dart';
 import 'destination_detail_screen.dart';
 
@@ -23,8 +22,6 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<DestinationProvider>(context);
-    final authProvider = Provider.of<AuthProvider>(context);
-    final user = authProvider.currentUser;
 
     return Scaffold(
       body: SafeArea(
@@ -170,8 +167,8 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
                                   context,
                                   PageRouteBuilder(
                                     transitionDuration: const Duration(milliseconds: 500),
-                                    pageBuilder: (_, __, ___) => DestinationDetailScreen(destination: dest),
-                                    transitionsBuilder: (_, animation, __, child) {
+                                    pageBuilder: (_, _, _) => DestinationDetailScreen(destination: dest),
+                                    transitionsBuilder: (_, animation, _, child) {
                                       return FadeTransition(opacity: animation, child: child);
                                     },
                                   ),
