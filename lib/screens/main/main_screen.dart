@@ -7,6 +7,9 @@ import '../community/community_screen.dart';
 import '../manage_bookings/manage_bookings_screen.dart';
 import '../notifications/notifications_screen.dart';
 import '../profile/profile_screen.dart';
+import '../favorites/favorites_screen.dart';
+import '../../providers/favorite_provider.dart';
+import '../auth/login_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -41,32 +44,89 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      
+      void checkAndLoad() {
+        if (authProvider.currentUser != null) {
+          Provider.of<FavoriteProvider>(context, listen: false)
+              .loadFavorites(authProvider.currentUser!.id!);
+          authProvider.removeListener(checkAndLoad);
+        }
+      }
+
+      if (authProvider.currentUser != null) {
+        checkAndLoad();
+      } else {
+        authProvider.addListener(checkAndLoad);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.currentUser;
 
     return Scaffold(
       appBar: AppBar(
+        leadingWidth: 100,
         leading: Padding(
           padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-            },
-            child: CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              backgroundImage: user?.avatarUrl != null ? NetworkImage(user!.avatarUrl!) : null,
-              child: user?.avatarUrl == null
-                  ? Icon(Icons.person, color: Theme.of(context).colorScheme.primary)
-                  : null,
-            ),
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                  );
+                },
+                child: CircleAvatar(
+                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                  backgroundImage: user?.avatarUrl != null ? NetworkImage(user!.avatarUrl!) : null,
+                  child: user?.avatarUrl == null
+                      ? Icon(Icons.person, color: Theme.of(context).colorScheme.primary)
+                      : null,
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () async {
+                  if (user != null) {
+                    await authProvider.logout();
+                  }
+                  if (context.mounted) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    );
+                  }
+                },
+                child: Icon(
+                  user != null ? Icons.logout : Icons.login,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ],
           ),
         ),
         title: Text(_titles[_currentIndex]),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.favorite, color: Colors.redAccent),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FavoritesScreen()),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: _screens[_currentIndex],
       bottomNavigationBar: Container(

@@ -201,6 +201,10 @@ class _ManageBookingsScreenState extends State<ManageBookingsScreen> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.delete_outline, color: Colors.grey),
+                                    onPressed: () => _confirmDelete(context, booking.id!),
+                                  ),
                                   TextButton(
                                     onPressed: () => _showBookingDetails(context, booking),
                                     child: const Text('Chi tiết'),
@@ -237,6 +241,38 @@ class _ManageBookingsScreenState extends State<ManageBookingsScreen> {
     );
   }
 
+  void _confirmDelete(BuildContext context, int bookingId) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xóa vé đặt chỗ'),
+        content: const Text('Bạn có chắc chắn muốn xóa vé này khỏi lịch sử không? Hành động này không thể hoàn tác.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              final provider = Provider.of<BookingProvider>(context, listen: false);
+              final success = await provider.deleteBooking(bookingId);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(success ? 'Đã xóa vé thành công.' : 'Có lỗi xảy ra khi xóa vé.'),
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            child: const Text('Xóa'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showBookingDetails(BuildContext context, dynamic booking) {
     showModalBottomSheet(
       context: context,
@@ -264,15 +300,15 @@ class _ManageBookingsScreenState extends State<ManageBookingsScreen> {
               _buildDetailRow('Tổng tiền', '${booking.totalPrice.toStringAsFixed(0)} VNĐ'),
               const Divider(height: 32),
               const Text(
-                'Phương thức xác nhận:',
+                'Phương thức thanh toán:',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.check_circle, color: Colors.green, size: 20),
+                  const Icon(Icons.payment, color: Colors.green, size: 20),
                   const SizedBox(width: 8),
-                  const Text('Thanh toán tại quầy & Xác thực qua App'),
+                  Text(booking.paymentMethod ?? 'Chưa xác định'),
                 ],
               ),
               const SizedBox(height: 24),

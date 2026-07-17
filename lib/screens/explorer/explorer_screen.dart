@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/destination_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/favorite_provider.dart';
 import 'destination_detail_screen.dart';
 
 class ExplorerScreen extends StatefulWidget {
@@ -22,6 +24,9 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<DestinationProvider>(context);
+    final favoriteProvider = Provider.of<FavoriteProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.currentUser;
 
     return Scaffold(
       body: SafeArea(
@@ -205,13 +210,28 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
                                               Positioned(
                                                 top: 8,
                                                 right: 8,
-                                                child: Container(
-                                                  padding: const EdgeInsets.all(6),
-                                                  decoration: const BoxDecoration(
-                                                    color: Colors.white,
-                                                    shape: BoxShape.circle,
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    if (user != null) {
+                                                      favoriteProvider.toggleFavorite(user.id!, dest.id);
+                                                    }
+                                                  },
+                                                  child: Container(
+                                                    padding: const EdgeInsets.all(6),
+                                                    decoration: const BoxDecoration(
+                                                      color: Colors.white,
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: Icon(
+                                                      favoriteProvider.isFavoriteLocally(dest.id)
+                                                          ? Icons.favorite
+                                                          : Icons.favorite_border,
+                                                      size: 16,
+                                                      color: favoriteProvider.isFavoriteLocally(dest.id)
+                                                          ? Colors.redAccent
+                                                          : Colors.grey,
+                                                    ),
                                                   ),
-                                                  child: const Icon(Icons.favorite_border, size: 16, color: Colors.grey),
                                                 ),
                                               ),
                                             ],

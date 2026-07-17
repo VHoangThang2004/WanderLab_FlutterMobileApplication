@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/destination_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/booking_provider.dart';
-import 'booking_confirmation_screen.dart';
+import 'payment_screen.dart';
 
 class BookingScreen extends StatefulWidget {
   final Destination destination;
@@ -105,25 +105,15 @@ class _BookingScreenState extends State<BookingScreen> {
 
     if (shouldProceed != true) return;
 
-    final booking = await provider.createBooking(userId: userId);
-    if (booking != null) {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => BookingConfirmationScreen(
-              booking: booking,
-              destination: widget.destination,
-            ),
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaymentScreen(
+            destination: widget.destination,
           ),
-        );
-      }
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Đã xảy ra lỗi khi tạo yêu cầu đặt chỗ.')),
-        );
-      }
+        ),
+      );
     }
   }
 

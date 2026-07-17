@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/destination_model.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/favorite_provider.dart';
 import 'booking_screen.dart';
 
 class DestinationDetailScreen extends StatelessWidget {
@@ -9,6 +12,11 @@ class DestinationDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.currentUser;
+    final favoriteProvider = Provider.of<FavoriteProvider>(context);
+    final isFavorite = favoriteProvider.isFavoriteLocally(destination.id);
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -18,6 +26,19 @@ class DestinationDetailScreen extends StatelessWidget {
             backgroundColor: Colors.transparent,
             elevation: 0,
             iconTheme: const IconThemeData(color: Colors.white),
+            actions: [
+              if (user != null)
+                IconButton(
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite ? Colors.redAccent : Colors.white,
+                    shadows: const [Shadow(color: Colors.black54, blurRadius: 10)],
+                  ),
+                  onPressed: () {
+                    favoriteProvider.toggleFavorite(user.id!, destination.id);
+                  },
+                ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 destination.name,
@@ -61,7 +82,7 @@ class DestinationDetailScreen extends StatelessWidget {
               ),
               transform: Matrix4.translationValues(0.0, -30.0, 0.0), // pull up to overlap image
               child: Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.only(top: 48.0, left: 24.0, right: 24.0, bottom: 24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

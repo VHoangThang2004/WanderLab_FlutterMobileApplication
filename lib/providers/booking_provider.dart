@@ -76,7 +76,7 @@ class BookingProvider with ChangeNotifier {
     }
   }
 
-  Future<Booking?> createBooking({required int userId}) async {
+  Future<Booking?> createBooking({required int userId, String status = 'Chờ xác nhận', String? paymentMethod}) async {
     if (_selectedService == null || _selectedDate == null || _selectedTime == null) {
       return null;
     }
@@ -94,9 +94,10 @@ class BookingProvider with ChangeNotifier {
         bookingDate: bookingDateStr,
         bookingTime: bookingTimeStr,
         guestCount: _guestCount,
-        status: 'Chờ xác nhận',
+        status: status,
         totalPrice: totalPrice,
         createdAt: DateTime.now().toIso8601String(),
+        paymentMethod: paymentMethod,
       );
 
       final result = await DatabaseHelper.instance.insertBooking(newBooking);
@@ -115,6 +116,7 @@ class BookingProvider with ChangeNotifier {
           status: newBooking.status,
           totalPrice: newBooking.totalPrice,
           createdAt: newBooking.createdAt,
+          paymentMethod: newBooking.paymentMethod,
           serviceName: _selectedService!.name,
         );
         
@@ -163,6 +165,7 @@ class BookingProvider with ChangeNotifier {
             status: newStatus,
             totalPrice: old.totalPrice,
             createdAt: old.createdAt,
+            paymentMethod: old.paymentMethod,
             serviceName: old.serviceName,
             destinationName: old.destinationName,
           );
@@ -173,6 +176,21 @@ class BookingProvider with ChangeNotifier {
       return false;
     } catch (e) {
       debugPrint("Error updating booking status: $e");
+      return false;
+    }
+  }
+
+  Future<bool> deleteBooking(int bookingId) async {
+    try {
+      final rowsAffected = await DatabaseHelper.instance.deleteBooking(bookingId);
+      if (rowsAffected > 0) {
+        _userBookings.removeWhere((b) => b.id == bookingId);
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint("Error deleting booking: $e");
       return false;
     }
   }

@@ -25,7 +25,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 7,
+      version: 9,
       onCreate: _createDB,
       onUpgrade: (db, oldVersion, newVersion) async {
         await db.execute('DROP TABLE IF EXISTS destinations');
@@ -34,6 +34,7 @@ class DatabaseHelper {
         await db.execute('DROP TABLE IF EXISTS bookings');
         await db.execute('DROP TABLE IF EXISTS experience_logs');
         await db.execute('DROP TABLE IF EXISTS notifications');
+        await db.execute('DROP TABLE IF EXISTS favorites');
         await _createDB(db, newVersion);
       },
     );
@@ -92,6 +93,7 @@ CREATE TABLE bookings (
   bookingTime $textType,
   guestCount $intType,
   status $textType,
+  paymentMethod TEXT,
   totalPrice $doubleType,
   createdAt $textType,
   FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE,
@@ -123,6 +125,17 @@ CREATE TABLE notifications (
   isRead $intType,
   createdAt $textType,
   FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE
+)
+''');
+
+    await db.execute('''
+CREATE TABLE favorites (
+  id $idType,
+  userId $intType,
+  destinationId $intType,
+  FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE,
+  FOREIGN KEY (destinationId) REFERENCES destinations (id) ON DELETE CASCADE,
+  UNIQUE(userId, destinationId)
 )
 ''');
 
@@ -458,6 +471,15 @@ CREATE TABLE notifications (
     );
   }
 
+  Future<int> deleteBooking(int bookingId) async {
+    final db = await instance.database;
+    return await db.delete(
+      'bookings',
+      where: 'id = ?',
+      whereArgs: [bookingId],
+    );
+  }
+
   // --- Notifications ---
   Future<int> insertNotification(Map<String, dynamic> notificationMap) async {
     final db = await instance.database;
@@ -503,6 +525,49 @@ CREATE TABLE notifications (
   Future<int> insertExperienceLog(ExperienceLog log) async {
     final db = await instance.database;
     return await db.insert('experience_logs', log.toMap());
+  }
+
+  // --- FAVORITES ---
+  Future<bool> isFavorite(int userId, int destinationId) async {
+    final db = await instance.database;
+    final result = await db.query(
+      'favorites',
+      where: 'userId = ? AND destinationId = ?',
+      whereArgs: [userId, destinationId],
+    );
+    return result.isNotEmpty;
+  }
+
+  Future<bool> toggleFavorite(int userId, int destinationId) async {
+    final db = await instance.database;
+    final isFav = await isFavorite(userId, destinationId);
+
+    if (isFav) {
+      await db.delete(
+        'favorites',
+        where: 'userId = ? AND destinationId = ?',
+        whereArgs: [userId, destinationId],
+      );
+      return false; // Not favorite anymore
+    } else {
+      await db.insert('favorites', {
+        'userId': userId,
+        'destinationId': destinationId,
+      });
+      return true; // Now it is favorite
+    }
+  }
+
+  Future<List<Destination>> getFavoriteDestinationsForUser(int userId) async {
+    final db = await instance.database;
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT d.* 
+      FROM destinations d
+      JOIN favorites f ON d.id = f.destinationId
+      WHERE f.userId = ?
+    ''', [userId]);
+
+    return maps.map((json) => Destination.fromMap(json)).toList();
   }
 
   Future<void> close() async {
